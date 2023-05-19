@@ -287,19 +287,28 @@ class FBeta(Metric):
         if true_positives_bins.shape[0] == 0:
             true_positive_sum = torch.zeros(num_classes, device=y_pred.device)
         else:
-            true_positive_sum = torch.bincount(true_positives_bins.long(), minlength=num_classes).float()
+            tpb = true_positives_bins.detach().cpu()
+            true_positive_sum = torch.bincount(tpb.long(), minlength=num_classes).float()
+            true_positive_sum = true_positive_sum.to(y_pred.device)
+            # true_positive_sum = torch.bincount(true_positives_bins.long(), minlength=num_classes).float()
 
         pred_bins = argmax_y_pred[mask].long()
         # Watch it:
         # When the `mask` is all 0, we will get an _empty_ tensor.
         if pred_bins.shape[0] != 0:
-            pred_sum = torch.bincount(pred_bins, minlength=num_classes).float()
+            pb = pred_bins.detach().cpu()
+            pred_sum = torch.bincount(pb, minlength=num_classes).float()
+            pred_sum = pred_sum.to(y_pred.device)
+            # pred_sum = torch.bincount(pred_bins, minlength=num_classes).float()
         else:
             pred_sum = torch.zeros(num_classes, device=y_pred.device)
 
         y_true_bins = y_true[mask].long()
         if y_true.shape[0] != 0:
-            true_sum = torch.bincount(y_true_bins, minlength=num_classes).float()
+            ytb = y_true_bins.detach().cpu()
+            true_sum = torch.bincount(ytb, minlength=num_classes).float()
+            true_sum = true_sum.to(y_pred.device)
+            # true_sum = torch.bincount(y_true_bins, minlength=num_classes).float()
         else:
             true_sum = torch.zeros(num_classes, device=y_pred.device)
 
